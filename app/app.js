@@ -1,8 +1,6 @@
 /// <reference types="@argonjs/argon" />
 /// <reference types="three" />
 // grab some handles on APIs we use
-var Argon = require('@argonjs/argon');
-
 var Cesium = Argon.Cesium;
 var Cartesian3 = Argon.Cesium.Cartesian3;
 var ReferenceFrame = Argon.Cesium.ReferenceFrame;
