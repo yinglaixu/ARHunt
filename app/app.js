@@ -1,4 +1,5 @@
 /// <reference types="@argonjs/argon" />
+/// <reference types="@argonjs/argon" />
 /// <reference types="three" />
 // grab some handles on APIs we use
 var Cesium = Argon.Cesium;
