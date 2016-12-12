@@ -234,8 +234,9 @@ app.vuforia.init({
                     chestModel.position.set(0, 0, .08);
                     if (accessLevel < 1) {
                         console.log('accessLevel: ' + accessLevel);
+                        scene.remove(gvuBrochureObject);
                     } else {
-                        scene.remove(gvuBrochureObject);            
+                        console.log('accessLevel: ' + accessLevel);         
                     }
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
