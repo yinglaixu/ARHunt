@@ -3,19 +3,7 @@
 /// <reference types="dat-gui"/>
 // set up Argon
 var app = Argon.init();
-// Tell argon what local coordinate system you want.  The default coordinate
-// frame used by Argon is Cesium's FIXED frame, which is centered at the center
-// of the earth and oriented with the earth's axes.  
-// The FIXED frame is inconvenient for a number of reasons: the numbers used are
-// large and cause issues with rendering, and the orientation of the user's "local
-// view of the world" is different that the FIXED orientation (my perception of "up"
-// does not correspond to one of the FIXED axes).  
-// Therefore, Argon uses a local coordinate frame that sits on a plane tangent to 
-// the earth near the user's current location.  This frame automatically changes if the
-// user moves more than a few kilometers.
-// The EUS frame cooresponds to the typical 3D computer graphics coordinate frame, so we use
-// that here.  The other option Argon supports is localOriginEastNorthUp, which is
-// more similar to what is used in the geospatial industry
+
 app.context.setDefaultReferenceFrame(app.context.localOriginEastUpSouth);
 // set up THREE.  Create a scene, a perspective camera and an object
 // for the gvuBrochure target.  Do not add the gvuBrochure target content to the scene yet
@@ -32,6 +20,8 @@ var gui;
 var chestModel = new THREE.Object3D();
 // add keyModel
 var keyModel = new THREE.Object3D();
+// level of view access for objects
+var sightLevel = 0;
 
 
 gvuBrochureObject.add(chestModel);
@@ -117,68 +107,6 @@ var raycaster = new THREE.Raycaster();
 window.addEventListener('load', init);
 function init() {
     loadLeePerrySmith();
-    // // Support both mouse and touch.
-    // renderer.domElement.addEventListener('mouseup', function (event) {
-    //     var x = event.clientX;
-    //     var y = event.clientY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     checkIntersection();
-    //     if (intersection.intersects)
-    //         shoot();
-    // });
-    // renderer.domElement.addEventListener('touchstart', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // prevent touches from emiting mouse events 
-    //     event.preventDefault();
-    // }, false);
-    // renderer.domElement.addEventListener('touchend', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // only do touches in mono mode
-    //     if (monoMode) {
-    //         checkIntersection();
-    //         if (intersection.intersects)
-    //             requestAnimationFrame(shoot);
-    //     }
-    //     // prevent touches from emiting mouse events
-    //     event.preventDefault();
-    // });
-    // renderer.domElement.addEventListener('touchmove', onTouchMove);
-    // renderer.domElement.addEventListener('mousemove', onTouchMove);
-    // function onTouchMove(event) {
-    //     var x, y;
-    //     if (event instanceof TouchEvent) {
-    //         x = event.changedTouches[0].pageX;
-    //         y = event.changedTouches[0].pageY;
-    //     }
-    //     else {
-    //         x = event.clientX;
-    //         y = event.clientY;
-    //     }
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // only do touches in mono mode
-    //     if (monoMode) {
-    //         checkIntersection();
-    //     }
-    //     event.preventDefault();
-    // }
-    // add dat.GUI to the left HUD.  We hid it in stereo viewing, so we don't need to 
-    // figure out how to duplicate it.
-    // gui = new dat.GUI({ autoPlace: false });
-    // hud.hudElements[0].appendChild(gui.domElement);
-    // gui.add(params, 'projection', { 'From cam to mesh': 'camera', 'Normal to mesh': 'normal' });
-    // gui.add(params, 'minScale', 1, 30);
-    // gui.add(params, 'maxScale', 1, 30);
-    // gui.add(params, 'rotate');
-    // gui.add(params, 'clear');
-    // gui.open();
 }
 // a temporary variable to hold the world inverse matrix.  Used to move values between
 // scene (world) coordinates and the chestModel coordinates, to make this demo work 
@@ -263,76 +191,9 @@ function loadLeePerrySmith() {
 
 }
 
-// function shoot() {
-//     if (params.projection == 'camera') {
-//         var dir = headModel.getWorldPosition();
-//         var camPos = camera.getWorldPosition();
-//         dir.sub(camPos);
-//         p = intersection.point;
-//         var m = new THREE.Matrix4();
-//         var c = dir.clone();
-//         c.negate();
-//         c.multiplyScalar(10);
-//         c.add(p);
-//         m.lookAt(p, c, up);
-//         // put the rotation in headModel object coordinates
-//         m.multiplyMatrices(invWorld, m);
-//         m = m.extractRotation(m);
-//         var dummy = new THREE.Object3D();
-//         dummy.rotation.setFromRotationMatrix(m);
-//         r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-//     }
-//     else {
-//         p = intersection.point;
-//         var m = new THREE.Matrix4();
-//         // get the mouseHelper orientation in headModel coordinates
-//         m.multiplyMatrices(invWorld, mouseHelper.matrixWorld);
-//         var dummy = new THREE.Object3D();
-//         dummy.rotation.setFromRotationMatrix(m);
-//         r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-//     }
-//     // move p to headModel object coordinates from world
-//     p = p.clone();
-//     p.applyMatrix4(invWorld);
-//     var scale = (params.minScale + Math.random() * (params.maxScale - params.minScale)) / 500.0;
-//     s.set(scale, scale, scale);
-//     if (params.rotate)
-//         r.z = Math.random() * 2 * Math.PI;
-//     var material = decalMaterial.clone();
-//     material.color.setHex(Math.random() * 0xffffff);
-//     // mesh is in headModel coordinates, to p & r have also been moved into headModel coords
-//     var m2 = new THREE.Mesh(new THREE.DecalGeometry(mesh, p, r, s, false), material);
-//     decals.push(m2);
-//     headModel.add(m2);
-// }
-// function removeDecals() {
-//     decals.forEach(function (d) {
-//         headModel.remove(d);
-//         d = null;
-//     });
-//     decals = [];
-// }
-// function mergeDecals() {
-//     var merge = {};
-//     decals.forEach(function (decal) {
-//         var uuid = decal.material.uuid;
-//         var d = merge[uuid] = merge[uuid] || {};
-//         d.material = d.material || decal.material;
-//         d.geometry = d.geometry || new THREE.Geometry();
-//         d.geometry.merge(decal.geometry, decal.matrix);
-//     });
-//     removeDecals();
-//     for (var key in merge) {
-//         var d = merge[key];
-//         var mesh = new THREE.Mesh(d.geometry, d.material);
-//         headModel.add(mesh);
-//         decals.push(mesh);
-//     }
-// }
 // tell argon to initialize vuforia for our app, using our license information.
 app.vuforia.init({
- 
-    //encryptedLicenseData: "-----BEGIN PGP MESSAGE-----\nVersion: OpenPGP.js v2.3.2\nComment: http://openpgpjs.org\n\n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\n=xEDl\n-----END PGP MESSAGE-----\n"
+
     encryptedLicenseData: "-----BEGIN PGP MESSAGE-----\nVersion: OpenPGP.js v2.3.2\nComment: http://openpgpjs.org\n\n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\n=V8Kd\n-----END PGP MESSAGE-----\n"
 }).then(function (api) {
     // the vuforia API is ready, so we can start using it.
@@ -368,7 +229,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
+                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND & sightLevel >= 1) {
                     scene.add(gvuBrochureObject);
                     chestModel.position.set(0, 0, .08);
                 }
@@ -415,6 +276,7 @@ app.vuforia.init({
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
                     scene.add(keyTargetObject);
                     keyModel.position.set(0, 0, .08);
+                    sightLevel++;
                 }
                 else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(keyTargetObject);
