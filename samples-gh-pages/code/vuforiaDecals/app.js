@@ -22,13 +22,23 @@ app.context.setDefaultReferenceFrame(app.context.localOriginEastUpSouth);
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera();
 var gvuBrochureObject = new THREE.Object3D();
+// the object to put key into
+var keyTargetObject = new THREE.Object3D();
 scene.add(camera);
 // variable for the dat.GUI() instance
 var gui;
-// create an object to put the head in, which is then added to the object attached to the 
-// gvuBrochure target
-var headModel = new THREE.Object3D();
-gvuBrochureObject.add(headModel);
+
+// add chestModel
+var chestModel = new THREE.Object3D();
+// add keyModel
+var keyModel = new THREE.Object3D();
+
+
+gvuBrochureObject.add(chestModel);
+
+// put key object into keytargetobject
+keyTargetObject.add(keyModel);
+
 // We use the standard WebGLRenderer when we only need WebGL-based content
 var renderer = new THREE.WebGLRenderer({
     alpha: true,
@@ -96,9 +106,9 @@ light.position.set(-1, 0.75, -0.5);
 scene.add(light);
 var geometry = new THREE.Geometry();
 geometry.vertices.push(new THREE.Vector3(), new THREE.Vector3());
-// add to the headModel node, not the scene
+// add to the chestModel node, not the scene
 line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ linewidth: 4 }));
-headModel.add(line);
+chestModel.add(line);
 // leave mouseHelper in the scene, since it will get positioned/oriented in world coordinates
 var raycaster = new THREE.Raycaster();
 // var mouseHelper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 10), new THREE.MeshNormalMaterial());
@@ -171,7 +181,7 @@ function init() {
     // gui.open();
 }
 // a temporary variable to hold the world inverse matrix.  Used to move values between
-// scene (world) coordinates and the headModel coordinates, to make this demo work 
+// scene (world) coordinates and the chestModel coordinates, to make this demo work 
 // when the head is not attached to the world
 var invWorld = new THREE.Matrix4();
 function checkIntersection() {
@@ -183,7 +193,7 @@ function checkIntersection() {
     var intersects = raycaster.intersectObjects([mesh]);
     if (intersects.length > 0) {
         // get the transform from the world object back to the root of the scene
-        invWorld.getInverse(headModel.matrixWorld);
+        invWorld.getInverse(chestModel.matrixWorld);
         // need to move the point into "world" object instead of global scene coordinates
         var p = intersects[0].point;
         mouseHelper.position.copy(p);
@@ -197,7 +207,7 @@ function checkIntersection() {
         mouseHelper.lookAt(n);
         line.geometry.vertices[0].copy(intersection.point);
         line.geometry.vertices[1].copy(n);
-        // move line coordinates to the headModel object coordinates, from the world
+        // move line coordinates to the chestModel object coordinates, from the world
         line.geometry.vertices[0].applyMatrix4(invWorld);
         line.geometry.vertices[1].applyMatrix4(invWorld);
         line.geometry.verticesNeedUpdate = true;
@@ -219,6 +229,7 @@ function loadLeePerrySmith() {
         };
         var onError = function ( xhr ) { };
 
+        // load chest model
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.load( "../resources/treasure_chest.mtl", function( materials ) {
             materials.preload();
@@ -229,10 +240,27 @@ function loadLeePerrySmith() {
                 object.scale.x = 1;
                 object.scale.y = 1;
                 object.scale.z = 1;
-                headModel.add(object);
-                headModel.scale.set(0.1, 0.1, 0.1);
+                chestModel.add(object);
+                chestModel.scale.set(0.05, 0.05, 0.05);
             }, onProgress, onError );
         });
+
+        // load key model
+        var keyLoader = new THREE.MTLLoader();
+        keyLoader.load( "../resources/Key_B_02.mtl", function( materials ) {
+            materials.preload();
+            var keyobjLoader = new THREE.OBJLoader();
+            keyobjLoader.setMaterials( materials );
+            keyobjLoader.load("../resources/Key_B_02.obj", function ( object ) {
+                //object.rotation.y = 180* Math.PI / 180;
+                object.scale.x = 1;
+                object.scale.y = 1;
+                object.scale.z = 1;
+                keyModel.add(object);
+                keyModel.scale.set(0.05, 0.05, 0.05);
+            }, onProgress, onError );
+        });
+
 }
 
 // function shoot() {
@@ -342,7 +370,7 @@ app.vuforia.init({
                 // content attached to the target from the world.
                 if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
                     scene.add(gvuBrochureObject);
-                    headModel.position.set(0, 0, .08);
+                    chestModel.position.set(0, 0, .08);
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(gvuBrochureObject);
@@ -352,6 +380,51 @@ app.vuforia.init({
         // activate the dataset.
         api.objectTracker.activateDataSet(dataSet);
     });
+
+    // for the key
+    api.objectTracker.createDataSet("../resources/datasets/Balloon.xml").then(function (dataSet) {
+        // the data set has been succesfully downloaded
+        // tell vuforia to load the dataset.  
+        dataSet.load().then(function () {
+            // when it is loaded, we retrieve a list of trackables defined in the
+            // dataset and set up the content for the target
+            var trackables = dataSet.getTrackables();
+            // tell argon we want to track a specific trackable.  Each trackable
+            // has a Cesium entity associated with it, and is expressed in a 
+            // coordinate frame relative to the camera.  Because they are Cesium
+            // entities, we can ask for their pose in any coordinate frame we know
+            // about.
+            var keyTargetEntity = app.context.subscribeToEntityById(trackables['balloon'].id);
+            // the updateEvent is called each time the 3D world should be
+            // rendered, before the renderEvent.  The state of your application
+            // should be updated here.
+            app.context.updateEvent.addEventListener(function () {
+                // get the pose (in local coordinates) of the gvuBrochure target
+                var keyTargetPose = app.context.getEntityPose(keyTargetEntity);
+                // if the pose is known the target is visible, so set the
+                // THREE object to it's location and orientation
+                if (keyTargetPose.poseStatus & Argon.PoseStatus.KNOWN) {
+                    keyTargetObject.position.copy(keyTargetPose.position);
+                    keyTargetObject.quaternion.copy(keyTargetPose.orientation);
+                }
+                // when the target is first seen after not being seen, the 
+                // status is FOUND.  Add the gvuBrochureObject content to the target.
+                // when the target is first lost after being seen, the status 
+                // is LOST.  Here, we remove the gvuBrochureObject, removing all the
+                // content attached to the target from the world.
+                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
+                    scene.add(keyTargetObject);
+                    keyModel.position.set(0, 0, .08);
+                }
+                else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
+                    scene.remove(keyTargetObject);
+                }
+            });
+        });
+        // activate the dataset.
+        api.objectTracker.activateDataSet(dataSet);
+    });
+
 }).catch(function () {
     // if we're not running in Argon, we'll position the headModel in front of the camera
     // in the world, so we see something and can test
@@ -359,13 +432,20 @@ app.vuforia.init({
         app.context.updateEvent.addEventListener(function () {
             var userPose = app.context.getEntityPose(app.context.user);
             if (userPose.poseStatus & Argon.PoseStatus.KNOWN) {
-                headModel.position.copy(userPose.position);
-                headModel.quaternion.copy(userPose.orientation);
-                headModel.translateZ(-1);
-                headModel.rotateX(-Math.PI / 2);
+                // place chestModel to test
+                chestModel.position.copy(userPose.position);
+                chestModel.quaternion.copy(userPose.orientation);
+                chestModel.translateZ(-1);
+                chestModel.rotateX(-Math.PI / 2);
+                // place key Model to test
+                keyModel.position.copy(userPose.position);
+                keyModel.quaternion.copy(userPose.orientation);
+                keyModel.translateZ(-0.5);
+                keyModel.rotateX(-Math.PI / 2);
             }
             if (userPose.poseStatus & Argon.PoseStatus.FOUND) {
-                scene.add(headModel);
+                scene.add(chestModel);
+                scene.add(keyModel);
             }
         });
     }
