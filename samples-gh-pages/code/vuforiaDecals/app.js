@@ -21,7 +21,7 @@ var chestModel = new THREE.Object3D();
 // add keyModel
 var keyModel = new THREE.Object3D();
 // level of view access for objects
-var sightLevel = 0;
+var accessLevel = 0;
 
 
 gvuBrochureObject.add(chestModel);
@@ -229,9 +229,12 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND & sightLevel >= 1) {
+                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
                     scene.add(gvuBrochureObject);
                     chestModel.position.set(0, 0, .08);
+                    if (accessLevel < 1) {
+                        console.log('accessLevel: ' + accessLevel);
+                    }
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(gvuBrochureObject);
@@ -276,7 +279,7 @@ app.vuforia.init({
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
                     scene.add(keyTargetObject);
                     keyModel.position.set(0, 0, .08);
-                    sightLevel++;
+                    accessLevel++;
                 }
                 else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(keyTargetObject);
