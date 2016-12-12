@@ -332,7 +332,7 @@ function loadText(){
         // add an argon updateEvent listener to slowly change the text over time.
         // we don't have to pack all our logic into one listener.
         app.context.updateEvent.addEventListener(function () {
-            uniforms.amplitude.value = 1.0 + Math.sin(Date.now() * 0.001 * 0.5);
+            //uniforms.amplitude.value = 1.0 + Math.sin(Date.now() * 0.001 * 0.5);
         });
     });
 }
