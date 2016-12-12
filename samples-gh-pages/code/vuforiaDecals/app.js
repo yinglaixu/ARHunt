@@ -22,8 +22,20 @@ app.context.setDefaultReferenceFrame(app.context.localOriginEastUpSouth);
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera();
 var gvuBrochureObject = new THREE.Object3D();
+
+var userLocation = new THREE.Object3D();
+
 // the object to put key into
 var keyTargetObject = new THREE.Object3D();
+
+// add text
+var argonTextObject = new THREE.Object3D();
+
+var uniforms = {
+    amplitude: { type: "f", value: 0.0 }
+};
+
+scene.add(userLocation);
 scene.add(camera);
 // variable for the dat.GUI() instance
 var gui;
@@ -117,6 +129,7 @@ var raycaster = new THREE.Raycaster();
 window.addEventListener('load', init);
 function init() {
     loadLeePerrySmith();
+    loadText();
     // // Support both mouse and touch.
     // renderer.domElement.addEventListener('mouseup', function (event) {
     //     var x = event.clientX;
@@ -261,6 +274,67 @@ function loadLeePerrySmith() {
             }, onProgress, onError );
         });
 
+}
+
+function loadText(){
+    argonTextObject.position.z = -0.5;
+    userLocation.add(argonTextObject);
+    var loader = new THREE.FontLoader();
+    loader.load('../resources/fonts/helvetiker_bold.typeface.js', function (font) {
+        var textGeometry = new THREE.TextGeometry("find the key to open the chest.", {
+            font: font,
+            size: 40,
+            height: 5,
+            curveSegments: 3,
+            bevelThickness: 2,
+            bevelSize: 1,
+            bevelEnabled: true
+        });
+        textGeometry.center();
+        var tessellateModifier = new THREE.TessellateModifier(8);
+        for (var i = 0; i < 6; i++) {
+            tessellateModifier.modify(textGeometry);
+        }
+        var explodeModifier = new THREE.ExplodeModifier();
+        explodeModifier.modify(textGeometry);
+        var numFaces = textGeometry.faces.length;
+        var bufferGeometry = new THREE.BufferGeometry().fromGeometry(textGeometry);
+        var colors = new Float32Array(numFaces * 3 * 3);
+        var displacement = new Float32Array(numFaces * 3 * 3);
+        var color = new THREE.Color();
+        for (var f = 0; f < numFaces; f++) {
+            var index = 9 * f;
+            var h = 0.07 + 0.1 * Math.random();
+            var s = 0.5 + 0.5 * Math.random();
+            var l = 0.6 + 0.4 * Math.random();
+            color.setHSL(h, s, l);
+            var d = 5 + 20 * (0.5 - Math.random());
+            for (var i = 0; i < 3; i++) {
+                colors[index + (3 * i)] = color.r;
+                colors[index + (3 * i) + 1] = color.g;
+                colors[index + (3 * i) + 2] = color.b;
+                displacement[index + (3 * i)] = d;
+                displacement[index + (3 * i) + 1] = d;
+                displacement[index + (3 * i) + 2] = d;
+            }
+        }
+        bufferGeometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+        bufferGeometry.addAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
+        var shaderMaterial = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: "\n            uniform float amplitude;\n            attribute vec3 customColor;\n            attribute vec3 displacement;\n            varying vec3 vNormal;\n            varying vec3 vColor;\n            void main() {\n                vNormal = normal;\n                vColor = customColor;\n                vec3 newPosition = position + normal * amplitude * displacement;\n                gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );\n            }\n        ",
+            fragmentShader: "\n            varying vec3 vNormal;\n            varying vec3 vColor;\n            void main() {\n                const float ambient = 0.4;\n                vec3 light = vec3( 1.0 );\n                light = normalize( light );\n                float directional = max( dot( vNormal, light ), 0.0 );\n                gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );\n            }\n        "
+        });
+        var textMesh = new THREE.Mesh(bufferGeometry, shaderMaterial);
+        argonTextObject.add(textMesh);
+        argonTextObject.scale.set(0.001, 0.001, 0.001);
+        argonTextObject.position.z = -0.50;
+        // add an argon updateEvent listener to slowly change the text over time.
+        // we don't have to pack all our logic into one listener.
+        app.context.updateEvent.addEventListener(function () {
+            uniforms.amplitude.value = 1.0 + Math.sin(Date.now() * 0.001 * 0.5);
+        });
+    });
 }
 
 // function shoot() {
@@ -424,6 +498,56 @@ app.vuforia.init({
         // activate the dataset.
         api.objectTracker.activateDataSet(dataSet);
     });
+
+    // for the text
+    api.objectTracker.createDataSet("../resources/datasets/gold-coins.xml").then(function (dataSet) {
+            // the data set has been succesfully downloaded
+            // tell vuforia to load the dataset.  
+            dataSet.load().then(function () {
+                // when it is loaded, we retrieve a list of trackables defined in the
+                // dataset and set up the content for the target
+                var trackables = dataSet.getTrackables();
+                // tell argon we want to track a specific trackable.  Each trackable
+                // has a Cesium entity associated with it, and is expressed in a 
+                // coordinate frame relative to the camera.  Because they are Cesium
+                // entities, we can ask for their pose in any coordinate frame we know
+                // about.
+                var textTargetEntity = app.context.subscribeToEntityById(trackables["gold-coins"].id);
+                // create a THREE object to put on the trackable
+                var textTargetObject = new THREE.Object3D;
+                scene.add(textTargetObject);
+                // the updateEvent is called each time the 3D world should be
+                // rendered, before the renderEvent.  The state of your application
+                // should be updated here.
+                app.context.updateEvent.addEventListener(function () {
+                    // get the pose (in local coordinates) of the gvuBrochure target
+                    var textTargetPose = app.context.getEntityPose(textTargetEntity);
+                    // if the pose is known the target is visible, so set the
+                    // THREE object to the location and orientation
+                    if (textTargetPose.poseStatus & Argon.PoseStatus.KNOWN) {
+                        textTargetObject.position.copy(textTargetPose.position);
+                        textTargetObject.quaternion.copy(textTargetPose.orientation);
+                    }
+                    // when the target is first seen after not being seen, the 
+                    // status is FOUND.  Here, we move the 3D text object from the
+                    // world to the target.
+                    // when the target is first lost after being seen, the status 
+                    // is LOST.  Here, we move the 3D text object back to the world
+                    if (textTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
+                        textTargetObject.add(argonTextObject);
+                        argonTextObject.position.z = 0;
+                    }
+                    else if (textTargetPose.poseStatus & Argon.PoseStatus.LOST) {
+                        argonTextObject.position.z = -0.50;
+                        userLocation.add(argonTextObject);
+                    }
+                });
+            }).catch(function (err) {
+                console.log("could not load dataset: " + err.message);
+            });
+            // activate the dataset.
+            api.objectTracker.activateDataSet(dataSet);
+        });
 
 }).catch(function () {
     // if we're not running in Argon, we'll position the headModel in front of the camera
