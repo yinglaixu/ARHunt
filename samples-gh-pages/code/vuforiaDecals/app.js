@@ -216,6 +216,7 @@ app.vuforia.init({
             // rendered, before the renderEvent.  The state of your application
             // should be updated here.
             app.context.updateEvent.addEventListener(function () {
+                if(accessLevel > 0) {
                 // get the pose (in local coordinates) of the gvuBrochure target
                 var gvuBrochurePose = app.context.getEntityPose(gvuBrochureEntity);
                 // if the pose is known the target is visible, so set the
@@ -238,6 +239,7 @@ app.vuforia.init({
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(gvuBrochureObject);
+                }
                 }
             });
         });
