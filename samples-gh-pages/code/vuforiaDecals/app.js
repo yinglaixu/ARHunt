@@ -216,7 +216,6 @@ app.vuforia.init({
             // rendered, before the renderEvent.  The state of your application
             // should be updated here.
             app.context.updateEvent.addEventListener(function () {
-                if(accessLevel > 0) {
                 // get the pose (in local coordinates) of the gvuBrochure target
                 var gvuBrochurePose = app.context.getEntityPose(gvuBrochureEntity);
                 // if the pose is known the target is visible, so set the
@@ -235,11 +234,12 @@ app.vuforia.init({
                     chestModel.position.set(0, 0, .08);
                     if (accessLevel < 1) {
                         console.log('accessLevel: ' + accessLevel);
+                    } else {
+                        scene.remove(gvuBrochureObject);            
                     }
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
                     scene.remove(gvuBrochureObject);
-                }
                 }
             });
         });
