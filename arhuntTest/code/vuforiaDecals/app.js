@@ -123,67 +123,69 @@ line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ linewidth: 4 }));
 chestModel.add(line);
 // leave mouseHelper in the scene, since it will get positioned/oriented in world coordinates
 var raycaster = new THREE.Raycaster();
-// var mouseHelper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 10), new THREE.MeshNormalMaterial());
-// mouseHelper.visible = false;
-// scene.add(mouseHelper);
+var mouseHelper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 10), new THREE.MeshNormalMaterial());
+mouseHelper.visible = false;
+scene.add(mouseHelper);
 window.addEventListener('load', init);
 function init() {
     loadLeePerrySmith();
     loadText();
     // // Support both mouse and touch.
-    // renderer.domElement.addEventListener('mouseup', function (event) {
-    //     var x = event.clientX;
-    //     var y = event.clientY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     checkIntersection();
-    //     if (intersection.intersects)
-    //         shoot();
-    // });
-    // renderer.domElement.addEventListener('touchstart', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // prevent touches from emiting mouse events 
-    //     event.preventDefault();
-    // }, false);
-    // renderer.domElement.addEventListener('touchend', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // only do touches in mono mode
-    //     if (monoMode) {
-    //         checkIntersection();
-    //         if (intersection.intersects)
-    //             requestAnimationFrame(shoot);
-    //     }
-    //     // prevent touches from emiting mouse events
-    //     event.preventDefault();
-    // });
-    // renderer.domElement.addEventListener('touchmove', onTouchMove);
-    // renderer.domElement.addEventListener('mousemove', onTouchMove);
-    // function onTouchMove(event) {
-    //     var x, y;
-    //     if (event instanceof TouchEvent) {
-    //         x = event.changedTouches[0].pageX;
-    //         y = event.changedTouches[0].pageY;
-    //     }
-    //     else {
-    //         x = event.clientX;
-    //         y = event.clientY;
-    //     }
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // only do touches in mono mode
-    //     if (monoMode) {
-    //         checkIntersection();
-    //     }
-    //     event.preventDefault();
-    // }
+    renderer.domElement.addEventListener('mousedown', function (event) {
+        var x = event.clientX;
+        var y = event.clientY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        checkIntersection();
+        if (intersection.intersects)
+            shoot();
+    });
+    renderer.domElement.addEventListener('touchstart', function (event) {
+        var x = event.changedTouches[0].pageX;
+        var y = event.changedTouches[0].pageY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        // prevent touches from emiting mouse events 
+        event.preventDefault();
+    }, false);
+    renderer.domElement.addEventListener('touchend', function (event) {
+        var x = event.changedTouches[0].pageX;
+        var y = event.changedTouches[0].pageY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        // only do touches in mono mode
+        if (monoMode) {
+            checkIntersection();
+            if (intersection.intersects)
+                requestAnimationFrame(shoot);
+        }
+        // prevent touches from emiting mouse events
+        event.preventDefault();
+    });
+    renderer.domElement.addEventListener('touchmove', onTouchMove);
+
+
+    renderer.domElement.addEventListener('mousemove', onTouchMove);
+    function onTouchMove(event) {
+        var x, y;
+        if (event instanceof TouchEvent) {
+            x = event.changedTouches[0].pageX;
+            y = event.changedTouches[0].pageY;
+        }
+        else {
+            x = event.clientX;
+            y = event.clientY;
+        }
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        // only do touches in mono mode
+        if (monoMode) {
+            checkIntersection();
+        }
+        event.preventDefault();
+    }
     // add dat.GUI to the left HUD.  We hid it in stereo viewing, so we don't need to 
-    // figure out how to duplicate it.
+    //figure out how to duplicate it.
     // gui = new dat.GUI({ autoPlace: false });
     // hud.hudElements[0].appendChild(gui.domElement);
     // gui.add(params, 'projection', { 'From cam to mesh': 'camera', 'Normal to mesh': 'normal' });
@@ -198,8 +200,10 @@ function init() {
 // when the head is not attached to the world
 var invWorld = new THREE.Matrix4();
 function checkIntersection() {
-    if (!mesh)
+    if (!mesh){
+        console.log("not mesh");
         return;
+    }
     // make sure everything is updated
     scene.updateMatrixWorld(true);
     raycaster.setFromCamera(mouse, camera);
@@ -254,7 +258,7 @@ function loadLeePerrySmith() {
                 object.scale.y = 1;
                 object.scale.z = 1;
                 chestModel.add(object);
-                chestModel.scale.set(50, 50, 50);
+                chestModel.scale.set(0.1, 0.1, 0.1);
             }, onProgress, onError );
         });
 
@@ -270,7 +274,7 @@ function loadLeePerrySmith() {
                 object.scale.y = 1;
                 object.scale.z = 1;
                 keyModel.add(object);
-                keyModel.scale.set(10, 10, 10);
+                keyModel.scale.set(0.05, 0.05, 0.05);
             }, onProgress, onError );
         });
 
@@ -338,72 +342,73 @@ function loadText(){
     });
 }
 
-// function shoot() {
-//     if (params.projection == 'camera') {
-//         var dir = headModel.getWorldPosition();
-//         var camPos = camera.getWorldPosition();
-//         dir.sub(camPos);
-//         p = intersection.point;
-//         var m = new THREE.Matrix4();
-//         var c = dir.clone();
-//         c.negate();
-//         c.multiplyScalar(10);
-//         c.add(p);
-//         m.lookAt(p, c, up);
-//         // put the rotation in headModel object coordinates
-//         m.multiplyMatrices(invWorld, m);
-//         m = m.extractRotation(m);
-//         var dummy = new THREE.Object3D();
-//         dummy.rotation.setFromRotationMatrix(m);
-//         r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-//     }
-//     else {
-//         p = intersection.point;
-//         var m = new THREE.Matrix4();
-//         // get the mouseHelper orientation in headModel coordinates
-//         m.multiplyMatrices(invWorld, mouseHelper.matrixWorld);
-//         var dummy = new THREE.Object3D();
-//         dummy.rotation.setFromRotationMatrix(m);
-//         r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-//     }
-//     // move p to headModel object coordinates from world
-//     p = p.clone();
-//     p.applyMatrix4(invWorld);
-//     var scale = (params.minScale + Math.random() * (params.maxScale - params.minScale)) / 500.0;
-//     s.set(scale, scale, scale);
-//     if (params.rotate)
-//         r.z = Math.random() * 2 * Math.PI;
-//     var material = decalMaterial.clone();
-//     material.color.setHex(Math.random() * 0xffffff);
-//     // mesh is in headModel coordinates, to p & r have also been moved into headModel coords
-//     var m2 = new THREE.Mesh(new THREE.DecalGeometry(mesh, p, r, s, false), material);
-//     decals.push(m2);
-//     headModel.add(m2);
-// }
-// function removeDecals() {
-//     decals.forEach(function (d) {
-//         headModel.remove(d);
-//         d = null;
-//     });
-//     decals = [];
-// }
-// function mergeDecals() {
-//     var merge = {};
-//     decals.forEach(function (decal) {
-//         var uuid = decal.material.uuid;
-//         var d = merge[uuid] = merge[uuid] || {};
-//         d.material = d.material || decal.material;
-//         d.geometry = d.geometry || new THREE.Geometry();
-//         d.geometry.merge(decal.geometry, decal.matrix);
-//     });
-//     removeDecals();
-//     for (var key in merge) {
-//         var d = merge[key];
-//         var mesh = new THREE.Mesh(d.geometry, d.material);
-//         headModel.add(mesh);
-//         decals.push(mesh);
-//     }
-// }
+function shoot() {
+    console.log("shoot");
+    // if (params.projection == 'camera') {
+    //     var dir = headModel.getWorldPosition();
+    //     var camPos = camera.getWorldPosition();
+    //     dir.sub(camPos);
+    //     p = intersection.point;
+    //     var m = new THREE.Matrix4();
+    //     var c = dir.clone();
+    //     c.negate();
+    //     c.multiplyScalar(10);
+    //     c.add(p);
+    //     m.lookAt(p, c, up);
+    //     // put the rotation in headModel object coordinates
+    //     m.multiplyMatrices(invWorld, m);
+    //     m = m.extractRotation(m);
+    //     var dummy = new THREE.Object3D();
+    //     dummy.rotation.setFromRotationMatrix(m);
+    //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
+    // }
+    // else {
+    //     p = intersection.point;
+    //     var m = new THREE.Matrix4();
+    //     // get the mouseHelper orientation in headModel coordinates
+    //     m.multiplyMatrices(invWorld, mouseHelper.matrixWorld);
+    //     var dummy = new THREE.Object3D();
+    //     dummy.rotation.setFromRotationMatrix(m);
+    //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
+    // }
+    // // move p to headModel object coordinates from world
+    // p = p.clone();
+    // p.applyMatrix4(invWorld);
+    // var scale = (params.minScale + Math.random() * (params.maxScale - params.minScale)) / 500.0;
+    // s.set(scale, scale, scale);
+    // if (params.rotate)
+    //     r.z = Math.random() * 2 * Math.PI;
+    // var material = decalMaterial.clone();
+    // material.color.setHex(Math.random() * 0xffffff);
+    // // mesh is in headModel coordinates, to p & r have also been moved into headModel coords
+    // var m2 = new THREE.Mesh(new THREE.DecalGeometry(mesh, p, r, s, false), material);
+    // decals.push(m2);
+    // headModel.add(m2);
+}
+function removeDecals() {
+    decals.forEach(function (d) {
+        headModel.remove(d);
+        d = null;
+    });
+    decals = [];
+}
+function mergeDecals() {
+    var merge = {};
+    decals.forEach(function (decal) {
+        var uuid = decal.material.uuid;
+        var d = merge[uuid] = merge[uuid] || {};
+        d.material = d.material || decal.material;
+        d.geometry = d.geometry || new THREE.Geometry();
+        d.geometry.merge(decal.geometry, decal.matrix);
+    });
+    removeDecals();
+    for (var key in merge) {
+        var d = merge[key];
+        var mesh = new THREE.Mesh(d.geometry, d.material);
+        headModel.add(mesh);
+        decals.push(mesh);
+    }
+}
 // tell argon to initialize vuforia for our app, using our license information.
 app.vuforia.init({
  
