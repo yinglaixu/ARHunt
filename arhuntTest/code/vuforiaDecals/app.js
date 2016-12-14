@@ -23,6 +23,9 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera();
 var gvuBrochureObject = new THREE.Object3D();
 
+var keyFound = false;
+var chestOpen = false;
+
 var userLocation = new THREE.Object3D();
 
 // the object to put key into
@@ -140,14 +143,36 @@ function init() {
     //     if (intersection.intersects)
     //         shoot();
     // });
-    // renderer.domElement.addEventListener('touchstart', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // prevent touches from emiting mouse events 
-    //     event.preventDefault();
-    // }, false);
+    renderer.domElement.addEventListener('touchstart', function (event) {
+        var x = event.changedTouches[0].pageX;
+        var y = event.changedTouches[0].pageY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        // prevent touches from emiting mouse events 
+        //event.preventDefault();
+		
+		raycaster.setFromCamera( mouse, camera );
+		var intersects = raycaster.intersectObjects( scene.children );
+		
+		for ( var i = 0; i < intersects.length; i++ ) {
+
+			//If key is clicked and not found...
+			if(intersects[ i ].object == keyTargetObject)
+				if(keyFound == false){
+					keyFound == true;
+					scene.remove(keyTargetObject);
+				}
+				
+			//If key is clicked and not found...
+			if(intersects[ i ].object == gvuBrochureObject)
+				if(keyFound == true){
+					chestOpen == true;
+					scene.remove(gvuBrochureObject);
+				}
+	
+		}
+		
+    }, false);
     // renderer.domElement.addEventListener('touchend', function (event) {
     //     var x = event.changedTouches[0].pageX;
     //     var y = event.changedTouches[0].pageY;
@@ -451,7 +476,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
+                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND & chestOpen == false) {
                     //console.log("chest found");
                     scene.add(gvuBrochureObject);
                     //chestModel.position.set(0, 0, 0);
@@ -503,7 +528,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
+                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND & keyFound == false) {
                     //console.log("key found");
                     scene.add(keyTargetObject);
                     //keyModel.position.set(0, 0, 0);
