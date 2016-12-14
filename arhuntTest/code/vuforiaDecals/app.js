@@ -232,7 +232,7 @@ function checkIntersection() {
 }
 
 function loadLeePerrySmith() {
-    userLocation.add(keytargetobject);
+    //userLocation.add(keytargetobject);
     //model
         var onProgress = function ( xhr ) {
             if ( xhr.lengthComputable ) {
@@ -250,11 +250,11 @@ function loadLeePerrySmith() {
             objLoader.setMaterials( materials );
             objLoader.load("../resources/treasure_chest.obj", function ( object ) {
                 //object.rotation.y = 180* Math.PI / 180;
-                object.scale.x = 5;
-                object.scale.y = 5;
-                object.scale.z = 5;
+                object.scale.x = 1;
+                object.scale.y = 1;
+                object.scale.z = 1;
                 chestModel.add(object);
-                chestModel.scale.set(0.02, 0.02, 0.02);
+                chestModel.scale.set(50, 50, 50);
             }, onProgress, onError );
         });
 
@@ -266,11 +266,11 @@ function loadLeePerrySmith() {
             keyobjLoader.setMaterials( materials );
             keyobjLoader.load("../resources/Key_B_02.obj", function ( object ) {
                 //object.rotation.y = 180* Math.PI / 180;
-                object.scale.x = 5;
-                object.scale.y = 5;
-                object.scale.z = 5;
+                object.scale.x = 1;
+                object.scale.y = 1;
+                object.scale.z = 1;
                 keyModel.add(object);
-                keyModel.scale.set(0.01, 0.01, 0.01);
+                keyModel.scale.set(10, 10, 10);
             }, onProgress, onError );
         });
 
@@ -429,7 +429,7 @@ app.vuforia.init({
             // entities, we can ask for their pose in any coordinate frame we know
             // about.
             var gvuBrochureEntity = app.context.subscribeToEntityById(trackables['christmas_tree'].id);
-             console.log("chest dataset found");
+             console.log("chest dataset get");
             // the updateEvent is called each time the 3D world should be
             // rendered, before the renderEvent.  The state of your application
             // should be updated here.
@@ -439,9 +439,12 @@ app.vuforia.init({
                 // if the pose is known the target is visible, so set the
                 // THREE object to it's location and orientation
                 if (gvuBrochurePose.poseStatus & Argon.PoseStatus.KNOWN) {
-                    console.log("chest dataset known");
+                    
                     gvuBrochureObject.position.copy(gvuBrochurePose.position);
                     gvuBrochureObject.quaternion.copy(gvuBrochurePose.orientation);
+                    //scene.add(gvuBrochureObject);
+                    //chestModel.position.set(0, 0, 0);
+                    //console.log("chest known");
                 }
                 // when the target is first seen after not being seen, the 
                 // status is FOUND.  Add the gvuBrochureObject content to the target.
@@ -449,12 +452,12 @@ app.vuforia.init({
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
                 if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
-                     console.log("chest dataset found");
+                    //console.log("chest found");
                     scene.add(gvuBrochureObject);
-                    chestModel.position.set(0, 0, .08);
+                    //chestModel.position.set(0, 0, 0);
                 }
                 else if (gvuBrochurePose.poseStatus & Argon.PoseStatus.LOST) {
-                    console.log("chest dataset lost");
+                    //console.log("chest lost");
                     scene.remove(gvuBrochureObject);
                 }
             });
@@ -478,7 +481,7 @@ app.vuforia.init({
             // entities, we can ask for their pose in any coordinate frame we know
             // about.
             var keyTargetEntity = app.context.subscribeToEntityById(trackables['stickbox'].id);
-             console.log("key dataset found");
+             console.log("key dataset get");
             // the updateEvent is called each time the 3D world should be
             // rendered, before the renderEvent.  The state of your application
             // should be updated here.
@@ -488,9 +491,12 @@ app.vuforia.init({
                 // if the pose is known the target is visible, so set the
                 // THREE object to it's location and orientation
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.KNOWN) {
-                     console.log("key dataset show");
+                    
                     keyTargetObject.position.copy(keyTargetPose.position);
                     keyTargetObject.quaternion.copy(keyTargetPose.orientation);
+                    //scene.add(keyTargetObject);
+                    //keyModel.position.set(0, 0, 0);
+                    //console.log("key known");
                 }
                 // when the target is first seen after not being seen, the 
                 // status is FOUND.  Add the gvuBrochureObject content to the target.
@@ -498,12 +504,12 @@ app.vuforia.init({
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
-                    console.log("key dataset found");
+                    //console.log("key found");
                     scene.add(keyTargetObject);
-                    keyModel.position.set(0, 0, .08);
+                    //keyModel.position.set(0, 0, 0);
                 }
                 else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
-                    console.log("key dataset lost");
+                    //console.log("key lost");
                      //userLocation.remove(keyTargetObject);
                     scene.remove(keyTargetObject);
                 }
@@ -514,7 +520,7 @@ app.vuforia.init({
     });
 
     // for the text
-    api.objectTracker.createDataSet("../resources/datasets/sticks.xml").then(function (dataSet) {
+    api.objectTracker.createDataSet("../resources/datasets/gold-coins.xml").then(function (dataSet) {
             // the data set has been succesfully downloaded
             // tell vuforia to load the dataset.  
             dataSet.load().then(function () {
@@ -526,7 +532,7 @@ app.vuforia.init({
                 // coordinate frame relative to the camera.  Because they are Cesium
                 // entities, we can ask for their pose in any coordinate frame we know
                 // about.
-                var textTargetEntity = app.context.subscribeToEntityById(trackables["stickbox"].id);
+                var textTargetEntity = app.context.subscribeToEntityById(trackables["gold-coins"].id);
                 // create a THREE object to put on the trackable
                 var textTargetObject = new THREE.Object3D;
                 scene.add(textTargetObject);
