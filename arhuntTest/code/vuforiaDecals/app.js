@@ -153,14 +153,14 @@ function init() {
 		
 		raycaster.setFromCamera( mouse, camera );
 		var intersects = raycaster.intersectObjects( scene.children );
-		console.log(intersects);
+		
 		for ( var i = 0; i < intersects.length; i++ ) {
 
 			//If key is clicked and not found...
-			if(intersects[ i ].object == keyModel)
+			if(intersects[ i ].object == keyTargetObject)
 				if(keyFound == false){
 					keyFound == true;
-					scene.remove(keyModel);
+					scene.remove(keyTargetObject);
 				}
 				
 			//If key is clicked and not found...
@@ -517,8 +517,8 @@ app.vuforia.init({
                 // THREE object to it's location and orientation
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.KNOWN) {
                     
-                    keyModel.position.copy(keyTargetPose.position);
-                    keyModel.quaternion.copy(keyTargetPose.orientation);
+                    keyTargetObject.position.copy(keyTargetPose.position);
+                    keyTargetObject.quaternion.copy(keyTargetPose.orientation);
                     //scene.add(keyTargetObject);
                     //keyModel.position.set(0, 0, 0);
                     //console.log("key known");
@@ -530,13 +530,13 @@ app.vuforia.init({
                 // content attached to the target from the world.
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND & keyFound == false) {
                     //console.log("key found");
-                    scene.add(keyModel);
+                    scene.add(keyTargetObject);
                     //keyModel.position.set(0, 0, 0);
                 }
                 else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
                     //console.log("key lost");
                      //userLocation.remove(keyTargetObject);
-                    scene.remove(keyModel);
+                    scene.remove(keyTargetObject);
                 }
             });
         });
