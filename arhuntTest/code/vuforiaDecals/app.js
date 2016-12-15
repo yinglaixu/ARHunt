@@ -26,7 +26,7 @@ var gvuBrochureObject = new THREE.Object3D();
 var userLocation = new THREE.Object3D();
 
 // the object to put key into
-var keyTargetObject = new THREE.Object3D();
+//var keyTargetObject = new THREE.Object3D();
 
 // add text
 var argonTextObject = new THREE.Object3D();
@@ -49,7 +49,7 @@ var keyModel = new THREE.Object3D();
 gvuBrochureObject.add(chestModel);
 
 // put key object into keytargetobject
-keyTargetObject.add(keyModel);
+//keyTargetObject.add(keyModel);
 
 // We use the standard WebGLRenderer when we only need WebGL-based content
 var renderer = new THREE.WebGLRenderer({
@@ -500,8 +500,8 @@ app.vuforia.init({
                 // THREE object to it's location and orientation
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.KNOWN) {
                     
-                    keyTargetObject.position.copy(keyTargetPose.position);
-                    keyTargetObject.quaternion.copy(keyTargetPose.orientation);
+                    keyModel.position.copy(keyTargetPose.position);
+                    keyModel.quaternion.copy(keyTargetPose.orientation);
                     //scene.add(keyTargetObject);
                     //keyModel.position.set(0, 0, 0);
                     //console.log("key known");
@@ -513,13 +513,13 @@ app.vuforia.init({
                 // content attached to the target from the world.
                 if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
                     //console.log("key found");
-                    scene.add(keyTargetObject);
+                    scene.add(keyModel);
                     //keyModel.position.set(0, 0, 0);
                 }
                 else if (keyTargetPose.poseStatus & Argon.PoseStatus.LOST) {
                     //console.log("key lost");
                      //userLocation.remove(keyTargetObject);
-                    scene.remove(keyTargetObject);
+                    scene.remove(keyModel);
                 }
             });
         });
