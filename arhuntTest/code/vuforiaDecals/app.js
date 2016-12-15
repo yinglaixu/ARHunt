@@ -40,6 +40,9 @@ scene.add(camera);
 // variable for the dat.GUI() instance
 var gui;
 
+var keyFound = 0;
+var chestOpen = 0;
+
 // add chestModel
 var chestModel = new THREE.Object3D();
 // add keyModel
@@ -149,24 +152,32 @@ function init() {
         //event.preventDefault();
 		
 		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( scene.children );
-		console.log(intersects);
-		for ( var i = 0; i < intersects.length; i++ ) {
+		var intersects = raycaster.intersectObjects( scene.children , true);
+        //console.log(scene.children);
+		//console.log(intersects);
+		if (0 < intersects.length) {
+
+           
 
 			//If key is clicked and not found...
-			if(intersects[ i ].object == keyModel)
-				if(keyFound == false){
-					keyFound == true;
+			if(keyModel.parent == scene){
+                console.log("click key");
+				if(keyFound == 0){
+
+                    console.log("remove key");
+					keyFound = 1;
 					scene.remove(keyModel);
+                    addKeytoInventory();
 				}
+            }
 				
 			//If key is clicked and not found...
-			if(intersects[ i ].object == gvuBrochureObject)
-				if(keyFound == true){
-					chestOpen == true;
+			if(gvuBrochureObject.parent == scene)
+				if(keyFound == 1){
+					chestOpen = 1;
 					scene.remove(gvuBrochureObject);
+                    finishGameNotification();
 				}
-	
 		}
 		
     }, false);
@@ -367,6 +378,18 @@ function loadText(){
     });
 }
 
+
+// add something when clicking the object, like the picture 
+function addKeytoInventory(){
+    document.getElementById("description").innerHTML = 
+    "<div><br><h2>Your inventory</h2><img src = '../resources/key_pic.png'></img><p>You can open the chest with the key.</p></div>";
+}
+
+// congratulation when opening the key
+function finishGameNotification(){
+    document.getElementById("description").innerHTML = 
+    "<div><br><h2>congratulations!</h2><p> You have won!! </p></div>";
+}
 // function shoot() {
 //     console.log("shoot");
 //     // if (params.projection == 'camera') {
@@ -481,7 +504,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) {
+                if ((gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND) && chestOpen == 0) {
                     //console.log("chest found");
                     scene.add(gvuBrochureObject);
                     //chestModel.position.set(0, 0, 0);
@@ -533,8 +556,8 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) {
-                    //console.log("key found");
+                if ((keyTargetPose.poseStatus & Argon.PoseStatus.FOUND) && keyFound == 0) {
+                    console.log(keyFound);
                     scene.add(keyModel);
                     //keyModel.position.set(0, 0, 0);
                 }
