@@ -150,27 +150,27 @@ function init() {
         mouse.y = -(y / window.innerHeight) * 2 + 1;
         // prevent touches from emiting mouse events 
         //event.preventDefault();
-		
-		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( scene.children );
-		
-		for ( var i = 0; i < intersects.length; i++ ) {
-
-			//If key is clicked and not found...
-			if(intersects[ i ].object == keyTargetObject)
-				if(keyFound == false){
-					keyFound == true;
-					scene.remove(keyTargetObject);
-				}
-				
-			//If key is clicked and not found...
-			if(intersects[ i ].object == gvuBrochureObject)
-				if(keyFound == true){
-					chestOpen == true;
-					scene.remove(gvuBrochureObject);
-				}
 	
+	raycaster.setFromCamera( mouse, camera );
+	if(keyFound == false){
+		var intersects = raycaster.intersectObjects( keyTargetObject.children );
+	
+		if (0 < intersects.length) {
+		
+			keyFound == true;
+			scene.remove(keyTargetObject);
 		}
+	}
+	else if (chestOpen == false){
+
+		var intersects = raycaster.intersectObjects( gvuBrochureObject.children );
+	
+		if (0 < intersects.length) {
+		
+			chestOpen == true;
+			scene.remove(gvuBrochureObject);
+		}
+	}
 		
     }, false);
     // renderer.domElement.addEventListener('touchend', function (event) {
