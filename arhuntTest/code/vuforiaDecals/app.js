@@ -150,7 +150,7 @@ function init() {
 		
 		raycaster.setFromCamera( mouse, camera );
 		var intersects = raycaster.intersectObjects( scene.children );
-		
+		console.log(intersects);
 		for ( var i = 0; i < intersects.length; i++ ) {
 
 			//If key is clicked and not found...
