@@ -476,7 +476,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND & chestOpen == false) {
+                if (gvuBrochurePose.poseStatus & Argon.PoseStatus.FOUND & !chestOpen) {
                     //console.log("chest found");
                     scene.add(gvuBrochureObject);
                     //chestModel.position.set(0, 0, 0);
@@ -528,7 +528,7 @@ app.vuforia.init({
                 // when the target is first lost after being seen, the status 
                 // is LOST.  Here, we remove the gvuBrochureObject, removing all the
                 // content attached to the target from the world.
-                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND & keyFound == false) {
+                if (keyTargetPose.poseStatus & Argon.PoseStatus.FOUND & !keyFound) {
                     //console.log("key found");
                     scene.add(keyTargetObject);
                     //keyModel.position.set(0, 0, 0);
