@@ -140,14 +140,36 @@ function init() {
     //     if (intersection.intersects)
     //         shoot();
     // });
-    // renderer.domElement.addEventListener('touchstart', function (event) {
-    //     var x = event.changedTouches[0].pageX;
-    //     var y = event.changedTouches[0].pageY;
-    //     mouse.x = (x / window.innerWidth) * 2 - 1;
-    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
-    //     // prevent touches from emiting mouse events 
-    //     event.preventDefault();
-    // }, false);
+    renderer.domElement.addEventListener('touchstart', function (event) {
+        var x = event.changedTouches[0].pageX;
+        var y = event.changedTouches[0].pageY;
+        mouse.x = (x / window.innerWidth) * 2 - 1;
+        mouse.y = -(y / window.innerHeight) * 2 + 1;
+        // prevent touches from emiting mouse events 
+        //event.preventDefault();
+		
+		raycaster.setFromCamera( mouse, camera );
+		var intersects = raycaster.intersectObjects( scene.children );
+		
+		for ( var i = 0; i < intersects.length; i++ ) {
+
+			//If key is clicked and not found...
+			if(intersects[ i ].object == keyModel)
+				if(keyFound == false){
+					keyFound == true;
+					scene.remove(keyModel);
+				}
+				
+			//If key is clicked and not found...
+			if(intersects[ i ].object == gvuBrochureObject)
+				if(keyFound == true){
+					chestOpen == true;
+					scene.remove(gvuBrochureObject);
+				}
+	
+		}
+		
+    }, false);
     // renderer.domElement.addEventListener('touchend', function (event) {
     //     var x = event.changedTouches[0].pageX;
     //     var y = event.changedTouches[0].pageY;
