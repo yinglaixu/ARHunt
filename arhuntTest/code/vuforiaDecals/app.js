@@ -131,59 +131,59 @@ function init() {
     loadLeePerrySmith();
     loadText();
     // // Support both mouse and touch.
-    renderer.domElement.addEventListener('mousedown', function (event) {
-        var x = event.clientX;
-        var y = event.clientY;
-        mouse.x = (x / window.innerWidth) * 2 - 1;
-        mouse.y = -(y / window.innerHeight) * 2 + 1;
-        checkIntersection();
-        if (intersection.intersects)
-            shoot();
-    });
-    renderer.domElement.addEventListener('touchstart', function (event) {
-        var x = event.changedTouches[0].pageX;
-        var y = event.changedTouches[0].pageY;
-        mouse.x = (x / window.innerWidth) * 2 - 1;
-        mouse.y = -(y / window.innerHeight) * 2 + 1;
-        // prevent touches from emiting mouse events 
-        event.preventDefault();
-    }, false);
-    renderer.domElement.addEventListener('touchend', function (event) {
-        var x = event.changedTouches[0].pageX;
-        var y = event.changedTouches[0].pageY;
-        mouse.x = (x / window.innerWidth) * 2 - 1;
-        mouse.y = -(y / window.innerHeight) * 2 + 1;
-        // only do touches in mono mode
-        if (monoMode) {
-            checkIntersection();
-            if (intersection.intersects)
-                requestAnimationFrame(shoot);
-        }
-        // prevent touches from emiting mouse events
-        event.preventDefault();
-    });
-    renderer.domElement.addEventListener('touchmove', onTouchMove);
+    // renderer.domElement.addEventListener('mousedown', function (event) {
+    //     var x = event.clientX;
+    //     var y = event.clientY;
+    //     mouse.x = (x / window.innerWidth) * 2 - 1;
+    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
+    //     checkIntersection();
+    //     if (intersection.intersects)
+    //         shoot();
+    // });
+    // renderer.domElement.addEventListener('touchstart', function (event) {
+    //     var x = event.changedTouches[0].pageX;
+    //     var y = event.changedTouches[0].pageY;
+    //     mouse.x = (x / window.innerWidth) * 2 - 1;
+    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
+    //     // prevent touches from emiting mouse events 
+    //     event.preventDefault();
+    // }, false);
+    // renderer.domElement.addEventListener('touchend', function (event) {
+    //     var x = event.changedTouches[0].pageX;
+    //     var y = event.changedTouches[0].pageY;
+    //     mouse.x = (x / window.innerWidth) * 2 - 1;
+    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
+    //     // only do touches in mono mode
+    //     if (monoMode) {
+    //         checkIntersection();
+    //         if (intersection.intersects)
+    //             requestAnimationFrame(shoot);
+    //     }
+    //     // prevent touches from emiting mouse events
+    //     event.preventDefault();
+    // });
+    // renderer.domElement.addEventListener('touchmove', onTouchMove);
 
 
-    renderer.domElement.addEventListener('mousemove', onTouchMove);
-    function onTouchMove(event) {
-        var x, y;
-        if (event instanceof TouchEvent) {
-            x = event.changedTouches[0].pageX;
-            y = event.changedTouches[0].pageY;
-        }
-        else {
-            x = event.clientX;
-            y = event.clientY;
-        }
-        mouse.x = (x / window.innerWidth) * 2 - 1;
-        mouse.y = -(y / window.innerHeight) * 2 + 1;
-        // only do touches in mono mode
-        if (monoMode) {
-            checkIntersection();
-        }
-        event.preventDefault();
-    }
+    // renderer.domElement.addEventListener('mousemove', onTouchMove);
+    // function onTouchMove(event) {
+    //     var x, y;
+    //     if (event instanceof TouchEvent) {
+    //         x = event.changedTouches[0].pageX;
+    //         y = event.changedTouches[0].pageY;
+    //     }
+    //     else {
+    //         x = event.clientX;
+    //         y = event.clientY;
+    //     }
+    //     mouse.x = (x / window.innerWidth) * 2 - 1;
+    //     mouse.y = -(y / window.innerHeight) * 2 + 1;
+    //     // only do touches in mono mode
+    //     if (monoMode) {
+    //         checkIntersection();
+    //     }
+    //     event.preventDefault();
+    // }
     // add dat.GUI to the left HUD.  We hid it in stereo viewing, so we don't need to 
     //figure out how to duplicate it.
     // gui = new dat.GUI({ autoPlace: false });
@@ -199,41 +199,41 @@ function init() {
 // scene (world) coordinates and the chestModel coordinates, to make this demo work 
 // when the head is not attached to the world
 var invWorld = new THREE.Matrix4();
-function checkIntersection() {
-    if (!mesh){
-        console.log("not mesh");
-        return;
-    }
-    // make sure everything is updated
-    scene.updateMatrixWorld(true);
-    raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects([mesh]);
-    if (intersects.length > 0) {
-        // get the transform from the world object back to the root of the scene
-        invWorld.getInverse(chestModel.matrixWorld);
-        // need to move the point into "world" object instead of global scene coordinates
-        var p = intersects[0].point;
-        mouseHelper.position.copy(p);
-        intersection.point.copy(p);
-        var n = intersects[0].face.normal.clone();
-        // the normal is in mesh coords, need it to be in world coords
-        n.transformDirection(mesh.matrixWorld);
-        intersection.normal.copy(intersects[0].face.normal);
-        n.multiplyScalar(.010);
-        n.add(intersects[0].point);
-        mouseHelper.lookAt(n);
-        line.geometry.vertices[0].copy(intersection.point);
-        line.geometry.vertices[1].copy(n);
-        // move line coordinates to the chestModel object coordinates, from the world
-        line.geometry.vertices[0].applyMatrix4(invWorld);
-        line.geometry.vertices[1].applyMatrix4(invWorld);
-        line.geometry.verticesNeedUpdate = true;
-        intersection.intersects = true;
-    }
-    else {
-        intersection.intersects = false;
-    }
-}
+// function checkIntersection() {
+//     if (!mesh){
+//         console.log("not mesh");
+//         return;
+//     }
+//     // make sure everything is updated
+//     scene.updateMatrixWorld(true);
+//     raycaster.setFromCamera(mouse, camera);
+//     var intersects = raycaster.intersectObjects([mesh]);
+//     if (intersects.length > 0) {
+//         // get the transform from the world object back to the root of the scene
+//         invWorld.getInverse(chestModel.matrixWorld);
+//         // need to move the point into "world" object instead of global scene coordinates
+//         var p = intersects[0].point;
+//         mouseHelper.position.copy(p);
+//         intersection.point.copy(p);
+//         var n = intersects[0].face.normal.clone();
+//         // the normal is in mesh coords, need it to be in world coords
+//         n.transformDirection(mesh.matrixWorld);
+//         intersection.normal.copy(intersects[0].face.normal);
+//         n.multiplyScalar(.010);
+//         n.add(intersects[0].point);
+//         mouseHelper.lookAt(n);
+//         line.geometry.vertices[0].copy(intersection.point);
+//         line.geometry.vertices[1].copy(n);
+//         // move line coordinates to the chestModel object coordinates, from the world
+//         line.geometry.vertices[0].applyMatrix4(invWorld);
+//         line.geometry.vertices[1].applyMatrix4(invWorld);
+//         line.geometry.verticesNeedUpdate = true;
+//         intersection.intersects = true;
+//     }
+//     else {
+//         intersection.intersects = false;
+//     }
+// }
 
 function loadLeePerrySmith() {
     //userLocation.add(keytargetobject);
@@ -246,10 +246,12 @@ function loadLeePerrySmith() {
         };
         var onError = function ( xhr ) { };
 
+        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
         // load chest model
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.load( "../resources/treasure_chest.mtl", function( materials ) {
-            materials.preload();
+            materials.preload();    
+
             var objLoader = new THREE.OBJLoader();
             objLoader.setMaterials( materials );
             objLoader.load("../resources/treasure_chest.obj", function ( object ) {
@@ -258,12 +260,13 @@ function loadLeePerrySmith() {
                 object.scale.y = 1;
                 object.scale.z = 1;
                 chestModel.add(object);
-                chestModel.scale.set(0.1, 0.1, 0.1);
+                chestModel.scale.set(50, 50, 50);
             }, onProgress, onError );
+
         });
 
-        // load key model
-        var keyLoader = new THREE.MTLLoader();
+        //load key model
+        keyLoader = new THREE.MTLLoader();
         keyLoader.load( "../resources/Key_B_02.mtl", function( materials ) {
             materials.preload();
             var keyobjLoader = new THREE.OBJLoader();
@@ -274,7 +277,7 @@ function loadLeePerrySmith() {
                 object.scale.y = 1;
                 object.scale.z = 1;
                 keyModel.add(object);
-                keyModel.scale.set(0.05, 0.05, 0.05);
+                keyModel.scale.set(10, 10, 10);
             }, onProgress, onError );
         });
 
@@ -342,73 +345,73 @@ function loadText(){
     });
 }
 
-function shoot() {
-    console.log("shoot");
-    // if (params.projection == 'camera') {
-    //     var dir = headModel.getWorldPosition();
-    //     var camPos = camera.getWorldPosition();
-    //     dir.sub(camPos);
-    //     p = intersection.point;
-    //     var m = new THREE.Matrix4();
-    //     var c = dir.clone();
-    //     c.negate();
-    //     c.multiplyScalar(10);
-    //     c.add(p);
-    //     m.lookAt(p, c, up);
-    //     // put the rotation in headModel object coordinates
-    //     m.multiplyMatrices(invWorld, m);
-    //     m = m.extractRotation(m);
-    //     var dummy = new THREE.Object3D();
-    //     dummy.rotation.setFromRotationMatrix(m);
-    //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-    // }
-    // else {
-    //     p = intersection.point;
-    //     var m = new THREE.Matrix4();
-    //     // get the mouseHelper orientation in headModel coordinates
-    //     m.multiplyMatrices(invWorld, mouseHelper.matrixWorld);
-    //     var dummy = new THREE.Object3D();
-    //     dummy.rotation.setFromRotationMatrix(m);
-    //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
-    // }
-    // // move p to headModel object coordinates from world
-    // p = p.clone();
-    // p.applyMatrix4(invWorld);
-    // var scale = (params.minScale + Math.random() * (params.maxScale - params.minScale)) / 500.0;
-    // s.set(scale, scale, scale);
-    // if (params.rotate)
-    //     r.z = Math.random() * 2 * Math.PI;
-    // var material = decalMaterial.clone();
-    // material.color.setHex(Math.random() * 0xffffff);
-    // // mesh is in headModel coordinates, to p & r have also been moved into headModel coords
-    // var m2 = new THREE.Mesh(new THREE.DecalGeometry(mesh, p, r, s, false), material);
-    // decals.push(m2);
-    // headModel.add(m2);
-}
-function removeDecals() {
-    decals.forEach(function (d) {
-        headModel.remove(d);
-        d = null;
-    });
-    decals = [];
-}
-function mergeDecals() {
-    var merge = {};
-    decals.forEach(function (decal) {
-        var uuid = decal.material.uuid;
-        var d = merge[uuid] = merge[uuid] || {};
-        d.material = d.material || decal.material;
-        d.geometry = d.geometry || new THREE.Geometry();
-        d.geometry.merge(decal.geometry, decal.matrix);
-    });
-    removeDecals();
-    for (var key in merge) {
-        var d = merge[key];
-        var mesh = new THREE.Mesh(d.geometry, d.material);
-        headModel.add(mesh);
-        decals.push(mesh);
-    }
-}
+// function shoot() {
+//     console.log("shoot");
+//     // if (params.projection == 'camera') {
+//     //     var dir = headModel.getWorldPosition();
+//     //     var camPos = camera.getWorldPosition();
+//     //     dir.sub(camPos);
+//     //     p = intersection.point;
+//     //     var m = new THREE.Matrix4();
+//     //     var c = dir.clone();
+//     //     c.negate();
+//     //     c.multiplyScalar(10);
+//     //     c.add(p);
+//     //     m.lookAt(p, c, up);
+//     //     // put the rotation in headModel object coordinates
+//     //     m.multiplyMatrices(invWorld, m);
+//     //     m = m.extractRotation(m);
+//     //     var dummy = new THREE.Object3D();
+//     //     dummy.rotation.setFromRotationMatrix(m);
+//     //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
+//     // }
+//     // else {
+//     //     p = intersection.point;
+//     //     var m = new THREE.Matrix4();
+//     //     // get the mouseHelper orientation in headModel coordinates
+//     //     m.multiplyMatrices(invWorld, mouseHelper.matrixWorld);
+//     //     var dummy = new THREE.Object3D();
+//     //     dummy.rotation.setFromRotationMatrix(m);
+//     //     r.set(dummy.rotation.x, dummy.rotation.y, dummy.rotation.z);
+//     // }
+//     // // move p to headModel object coordinates from world
+//     // p = p.clone();
+//     // p.applyMatrix4(invWorld);
+//     // var scale = (params.minScale + Math.random() * (params.maxScale - params.minScale)) / 500.0;
+//     // s.set(scale, scale, scale);
+//     // if (params.rotate)
+//     //     r.z = Math.random() * 2 * Math.PI;
+//     // var material = decalMaterial.clone();
+//     // material.color.setHex(Math.random() * 0xffffff);
+//     // // mesh is in headModel coordinates, to p & r have also been moved into headModel coords
+//     // var m2 = new THREE.Mesh(new THREE.DecalGeometry(mesh, p, r, s, false), material);
+//     // decals.push(m2);
+//     // headModel.add(m2);
+// }
+// function removeDecals() {
+//     decals.forEach(function (d) {
+//         headModel.remove(d);
+//         d = null;
+//     });
+//     decals = [];
+// }
+// function mergeDecals() {
+//     var merge = {};
+//     decals.forEach(function (decal) {
+//         var uuid = decal.material.uuid;
+//         var d = merge[uuid] = merge[uuid] || {};
+//         d.material = d.material || decal.material;
+//         d.geometry = d.geometry || new THREE.Geometry();
+//         d.geometry.merge(decal.geometry, decal.matrix);
+//     });
+//     removeDecals();
+//     for (var key in merge) {
+//         var d = merge[key];
+//         var mesh = new THREE.Mesh(d.geometry, d.material);
+//         headModel.add(mesh);
+//         decals.push(mesh);
+//     }
+// }
 // tell argon to initialize vuforia for our app, using our license information.
 app.vuforia.init({
  
