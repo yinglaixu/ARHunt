@@ -130,6 +130,9 @@ var mouseHelper = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 10), new THREE.Mesh
 mouseHelper.visible = false;
 scene.add(mouseHelper);
 window.addEventListener('load', init);
+var mixers = [];
+var anim;
+
 function init() {
     loadLeePerrySmith();
     loadText();
@@ -177,6 +180,7 @@ function init() {
 					chestOpen = 1;
 					scene.remove(gvuBrochureObject);
                     finishGameNotification();
+			anim.play();
 				}
 		}
 		
@@ -279,23 +283,24 @@ function loadLeePerrySmith() {
         };
         var onError = function ( xhr ) { };
 
-        THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
         // load chest model
-        var mtlLoader = new THREE.MTLLoader();
-        mtlLoader.load( "../resources/treasure_chest.mtl", function( materials ) {
-            materials.preload();    
+        var JSONLoader = new THREE.JSONLoader();
+        JSONLoader.load( "../resources/treasurechestopen.json", function( geometry, materials ) {
 
-            var objLoader = new THREE.OBJLoader();
-            objLoader.setMaterials( materials );
-            objLoader.load("../resources/treasure_chest.obj", function ( object ) {
+		var material = new THREE.MultiMaterial( materials );
+		var object = new THREE.Mesh( geometry, material );
+
                 //object.rotation.y = 180* Math.PI / 180;
                 object.scale.x = 1;
                 object.scale.y = 1;
                 object.scale.z = 1;
                 chestModel.add(object);
                 chestModel.scale.set(50, 50, 50);
-            }, onProgress, onError );
 
+		var mixer = new THREE.AnimationMixer( mesh );
+		anim = mixer.clipAction( geometry.animations[ 0 ] );
+		anim.setDuration( 1 );
+		mixers.push( mixer );
         });
 
         //load key model
@@ -651,6 +656,9 @@ app.vuforia.init({
 var monoMode = false;
 // renderEvent is fired whenever argon wants the app to update its display
 app.renderEvent.addEventListener(function () {
+
+    if(chestOpen) requestAnimationFrame( animate );
+
     // if we have 1 subView, we're in mono mode.  If more, stereo.
     monoMode = (app.view.getSubviews()).length == 1;
     // set the renderer to know the current size of the viewport.
