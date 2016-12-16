@@ -481,7 +481,7 @@ app.vuforia.init({
             // coordinate frame relative to the camera.  Because they are Cesium
             // entities, we can ask for their pose in any coordinate frame we know
             // about.
-            var gvuBrochureEntity = app.context.subscribeToEntityById(trackables['christmas_tree'].id);
+            var gvuBrochureEntity = app.context.subscribeToEntityById(trackables['Narutoe'].id);
              console.log("chest dataset get");
             // the updateEvent is called each time the 3D world should be
             // rendered, before the renderEvent.  The state of your application
@@ -520,7 +520,7 @@ app.vuforia.init({
     });
 
     // for the key
-    api.objectTracker.createDataSet("../resources/datasets/sticks.xml").then(function (dataSet) {
+    api.objectTracker.createDataSet("../resources/datasets/ARHunt_OT.xml").then(function (dataSet) {
         // the data set has been succesfully downloaded
         // tell vuforia to load the dataset.  
         dataSet.load().then(function () {
@@ -533,7 +533,7 @@ app.vuforia.init({
             // coordinate frame relative to the camera.  Because they are Cesium
             // entities, we can ask for their pose in any coordinate frame we know
             // about.
-            var keyTargetEntity = app.context.subscribeToEntityById(trackables['stickbox'].id);
+            var keyTargetEntity = app.context.subscribeToEntityById(trackables['yogabot'].id);
              console.log("key dataset get");
             // the updateEvent is called each time the 3D world should be
             // rendered, before the renderEvent.  The state of your application
@@ -573,7 +573,7 @@ app.vuforia.init({
     });
 
     // for the text
-    api.objectTracker.createDataSet("../resources/datasets/gold-coins.xml").then(function (dataSet) {
+    api.objectTracker.createDataSet("../resources/datasets/ARHunt.xml").then(function (dataSet) {
             // the data set has been succesfully downloaded
             // tell vuforia to load the dataset.  
             dataSet.load().then(function () {
@@ -585,7 +585,7 @@ app.vuforia.init({
                 // coordinate frame relative to the camera.  Because they are Cesium
                 // entities, we can ask for their pose in any coordinate frame we know
                 // about.
-                var textTargetEntity = app.context.subscribeToEntityById(trackables["gold-coins"].id);
+                var textTargetEntity = app.context.subscribeToEntityById(trackables["openhouseposter"].id);
                 // create a THREE object to put on the trackable
                 var textTargetObject = new THREE.Object3D;
                 scene.add(textTargetObject);
